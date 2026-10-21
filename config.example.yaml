@@ -1,0 +1,48 @@
+# storeluna-gogo 配置文件示例
+# 提示: 服务启动时若未找到 config.yaml 将会自动生成本默认配置文件
+
+server:
+  # 对外公共市场接口端口 (监听 0.0.0.0，供 FRP 穿透与客户端拉取)
+  port: 55150
+  # 允许访问的 CIDR 网段列表 (默认全网开放)
+  allow_ips:
+    - "0.0.0.0/0"
+    - "::/0"
+
+webui:
+  # 管理后台端口 (注意: 必须与 server.port 保持不同，否则阻止启动)
+  port: 65150
+  # 允许访问 WebUI 的 CIDR 列表 (严格限制仅允许内网/指定网段访问)
+  allow_ips:
+    - "127.0.0.1"
+    - "::1"
+    - "192.168.31.0/24" # 家庭局域网网段
+    - "10.0.0.0/8"
+    - "172.16.0.0/12"
+    - "192.168.0.0/16"
+  # 管理员登录密码 (默认值为 storeluna-gogo，若未修改控制台及 WebUI 将持续告警)
+  admin_password: "storeluna-gogo"
+
+sync:
+  # 数据同步模式:
+  # - "mirror": 官方镜像模式 (推荐，秒级拉取官方索引并构建，极低网络消耗)
+  # - "crawler": 全网自爬模式 (并发扫描 NPM koishi-plugin- 包，脱离官方独立运行)
+  mode: "mirror"
+
+  # 定时同步周期 (单位: 分钟)
+  interval_minutes: 30
+
+  # 上游源地址 (仅在 mirror 模式生效)
+  upstream_url: "https://raw.githubusercontent.com/koishijs/registry/master/index.json"
+
+  # NPM 镜像源地址 (仅在 crawler 模式生效)
+  registry_url: "https://registry.npmmirror.com"
+
+  # 自爬并发数 (仅在 crawler 模式生效，避免过高并发导致死锁)
+  concurrency: 8
+
+  # 单个网络请求超时时间 (秒)
+  timeout_seconds: 30
+
+  # 索引文件持久化落盘路径
+  data_path: "data/index.json"

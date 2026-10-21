@@ -1,0 +1,22 @@
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+bin/
+dist/
+
+# Configuration and runtime data
+config.yaml
+config.yaml.tmp
+data/
+*.tmp
+
+# IDE & OS
+.idea/
+.vscode/
+*.swp
+*~
+.DS_Store
+Thumbs.db

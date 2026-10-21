@@ -1,0 +1,7 @@
+.git
+.github
+*.exe
+data/
+config.yaml
+dist/
+docs/

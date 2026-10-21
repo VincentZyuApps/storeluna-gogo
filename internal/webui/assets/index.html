@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>storeluna-gogo 控制台</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <!-- 默认密码警告 Banner -->
+  <div id="default-pwd-banner" class="alert-banner" style="display: none;">
+    <span>⚠️ <strong>安全提示：</strong>当前服务正在使用默认管理员密码 <code>storeluna-gogo</code>，存在被未授权篡改风险！</span>
+    <a href="javascript:void(0)" onclick="focusPasswordInput()">立即前往修改 ➔</a>
+  </div>
+
+  <header>
+    <div class="brand">
+      <span class="brand-badge">GO</span>
+      <span class="brand-title">storeluna-gogo 控制台</span>
+    </div>
+    <div class="header-actions">
+      <!-- 三态循环主题切换：系统 -> 亮色 -> 暗色 -->
+      <button id="theme-toggle-btn" class="btn-icon" title="切换主题">
+        <span id="theme-icon">💻</span>
+        <span id="theme-text">跟随系统</span>
+      </button>
+      <button id="logout-btn" class="btn-icon" style="display: none;" onclick="logout()">退出登录</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- 仪表盘统计卡片 -->
+    <div class="stats-grid">
+      <div class="card">
+        <div class="stat-label">收录插件总数</div>
+        <div id="stat-total" class="stat-value highlight-blue">--</div>
+      </div>
+      <div class="card">
+        <div class="stat-label">运行模式</div>
+        <div id="stat-mode" class="stat-value highlight-purple">--</div>
+      </div>
+      <div class="card">
+        <div class="stat-label">上次同步时间</div>
+        <div id="stat-time" class="stat-value" style="font-size: 1.1rem; padding-top: 0.35rem;">--</div>
+      </div>
+      <div class="card">
+        <div class="stat-label">同步耗时 / 状态</div>
+        <div id="stat-duration" class="stat-value" style="font-size: 1.1rem; padding-top: 0.35rem;">--</div>
+      </div>
+    </div>
+
+    <!-- 立即同步操作卡片 -->
+    <div class="card section-card">
+      <div class="section-header">
+        <span class="section-title">⚡ 索引同步任务</span>
+        <button id="sync-btn" class="btn btn-sync" onclick="triggerSync()">立即全量同步</button>
+      </div>
+      <p class="form-desc" id="sync-desc">点击按钮将触发后台实时刷新并持久化至本地索引文件。</p>
+    </div>
+
+    <!-- 服务配置表单 -->
+    <div class="card section-card">
+      <div class="section-header">
+        <span class="section-title">⚙️ 服务参数配置 (双向实时绑定)</span>
+      </div>
+      <form id="config-form" onsubmit="saveConfig(event)">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="cfg-mode">数据同步模式 (Mode)</label>
+            <div class="form-desc">推荐 mirror 模式秒级拉取官方索引；crawler 模式将自爬 NPM。</div>
+            <select id="cfg-mode" class="form-control">
+              <option value="mirror">mirror (官方镜像模式，省流秒级)</option>
+              <option value="crawler">crawler (全网自爬模式，独立运行)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="cfg-interval">定时同步周期 (分钟)</label>
+            <div class="form-desc">后台定时自动刷新索引的间隔时间。</div>
+            <input type="number" id="cfg-interval" class="form-control" min="5" max="1440" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="cfg-server-port">Server 端口 (对外市场 API)</label>
+            <div class="form-desc">提供 /storeluna/index.json 与 /market 访问。</div>
+            <input type="number" id="cfg-server-port" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label for="cfg-webui-port">WebUI 端口 (管理控制台)</label>
+            <div class="form-desc">必须与 Server 端口不同，用于局域网管理。</div>
+            <input type="number" id="cfg-webui-port" class="form-control" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="cfg-upstream">上游镜像地址 (Upstream URL)</label>
+          <div class="form-desc">仅在 mirror 模式生效，默认指向官方 GitHub 仓库 raw 链接。</div>
+          <input type="url" id="cfg-upstream" class="form-control">
+        </div>
+
+        <div class="form-group">
+          <label for="cfg-allow-ips">WebUI 允许访问的 IP / 网段 (CIDR 列表)</label>
+          <div class="form-desc">每行一个 CIDR，如 127.0.0.1、192.168.31.0/24。</div>
+          <textarea id="cfg-allow-ips" class="form-control" rows="3"></textarea>
+        </div>
+
+        <div class="form-group" id="pwd-form-group">
+          <label for="cfg-password">管理员密码 (留空则不修改当前密码)</label>
+          <div class="form-desc">默认为 storeluna-gogo，建议尽快更改为高强度强密码。</div>
+          <input type="password" id="cfg-password" class="form-control" placeholder="输入新密码...">
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1.5rem;">
+          <button type="button" class="btn btn-secondary" onclick="loadConfig()">重置表单</button>
+          <button type="submit" class="btn btn-primary" id="save-btn">保存并热重载配置</button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <!-- 登录弹窗 (未登录或凭据失效时显示) -->
+  <div id="auth-modal" class="auth-modal" style="display: none;">
+    <div class="auth-box">
+      <div style="margin-bottom: 1.25rem;">
+        <span class="brand-badge">GO</span>
+        <h2 style="margin-top: 0.5rem; font-size: 1.25rem;">登录 storeluna 控制台</h2>
+        <p class="form-desc" style="margin-top: 0.25rem;">默认密码: <code>storeluna-gogo</code></p>
+      </div>
+      <form onsubmit="handleLogin(event)">
+        <div class="form-group" style="text-align: left;">
+          <input type="password" id="login-pwd" class="form-control" placeholder="输入管理员密码" required autofocus>
+        </div>
+        <p id="login-error" style="color: var(--danger-color); font-size: 0.82rem; margin-bottom: 0.8rem; display: none;"></p>
+        <button type="submit" class="btn btn-primary" style="width: 100%;">确认进入</button>
+      </form>
+    </div>
+  </div>
+
+  <footer class="footer">
+    storeluna-gogo &copy; 2026 Powered by Go &amp; Koishi Ecosystem.
+  </footer>
+
+  <script src="/app.js"></script>
+</body>
+</html>
