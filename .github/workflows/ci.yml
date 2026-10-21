@@ -60,7 +60,7 @@ jobs:
           elif [ -n "${{ github.ref_name }}" ]; then
             VERSION="${{ github.ref_name }}"
           else
-            VERSION="v1.0.0"
+            VERSION="v0.1.0"
           fi
           echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
           echo "BUILD_TIME=$(date -u +%Y-%m-%d)" >> $GITHUB_OUTPUT
@@ -109,7 +109,7 @@ jobs:
           elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
             TAG="${GITHUB_REF#refs/tags/}"
           else
-            TAG="v0.0.1"
+            TAG="v0.1.0"
           fi
           echo "tag=${TAG}" >> $GITHUB_OUTPUT
 

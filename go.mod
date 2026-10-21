@@ -1,5 +1,5 @@
-module github.com/VincentZyu233/storeluna-gogo
+module github.com/VincentZyuApps/storeluna-gogo
 
-go 1.24.6
+go 1.24
 
-require gopkg.in/yaml.v3 v3.0.1 // indirect
+require gopkg.in/yaml.v3 v3.0.1

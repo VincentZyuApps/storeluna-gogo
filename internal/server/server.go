@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	_ "embed"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -9,9 +10,12 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/VincentZyu233/storeluna-gogo/internal/config"
-	"github.com/VincentZyu233/storeluna-gogo/internal/storage"
+	"github.com/VincentZyuApps/storeluna-gogo/internal/config"
+	"github.com/VincentZyuApps/storeluna-gogo/internal/storage"
 )
+
+//go:embed favicon.ico
+var faviconBytes []byte
 
 type Server struct {
 	cfgMgr  *config.Manager
@@ -30,6 +34,7 @@ func (s *Server) Start(ctx context.Context) error {
 	cfg := s.cfgMgr.Get().Server
 
 	mux := http.NewServeMux()
+	mux.HandleFunc("/favicon.ico", s.handleFavicon)
 	mux.HandleFunc("/storeluna/index.json", s.handleMarketJSON)
 	mux.HandleFunc("/market", s.handleMarketJSON)
 	mux.HandleFunc("/healthz", s.handleStatus)
@@ -153,4 +158,11 @@ func getClientIP(r *http.Request) string {
 		return host
 	}
 	return r.RemoteAddr
+}
+
+func (s *Server) handleFavicon(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "image/x-icon")
+	w.Header().Set("Cache-Control", "public, max-age=604800")
+	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write(faviconBytes)
 }

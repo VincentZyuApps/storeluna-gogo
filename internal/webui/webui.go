@@ -14,9 +14,9 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/VincentZyu233/storeluna-gogo/internal/config"
-	"github.com/VincentZyu233/storeluna-gogo/internal/storage"
-	"github.com/VincentZyu233/storeluna-gogo/internal/syncer"
+	"github.com/VincentZyuApps/storeluna-gogo/internal/config"
+	"github.com/VincentZyuApps/storeluna-gogo/internal/storage"
+	"github.com/VincentZyuApps/storeluna-gogo/internal/syncer"
 )
 
 //go:embed assets/*
@@ -58,6 +58,7 @@ func (w *WebUI) Start(ctx context.Context) error {
 	mux.HandleFunc("/api/login", w.handleLogin)
 	mux.HandleFunc("/api/status", w.authMiddleware(w.handleStatus))
 	mux.HandleFunc("/api/config", w.authMiddleware(w.handleConfig))
+	mux.HandleFunc("/api/password", w.authMiddleware(w.handlePassword))
 	mux.HandleFunc("/api/sync", w.authMiddleware(w.handleSync))
 
 	handler := w.ipFilterMiddleware(mux)
@@ -208,6 +209,9 @@ func (w *WebUI) handleConfig(rw http.ResponseWriter, r *http.Request) {
 		if incoming.Sync.TimeoutSeconds == 0 {
 			incoming.Sync.TimeoutSeconds = current.Sync.TimeoutSeconds
 		}
+		if incoming.Sync.Proxy.URL == "" {
+			incoming.Sync.Proxy.URL = current.Sync.Proxy.URL
+		}
 
 		if err := w.cfgMgr.Update(&incoming); err != nil {
 			rw.WriteHeader(http.StatusBadRequest)
@@ -220,6 +224,43 @@ func (w *WebUI) handleConfig(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	http.Error(rw, "Method Not Allowed", http.StatusMethodNotAllowed)
+}
+
+func (w *WebUI) handlePassword(rw http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(rw, "Method Not Allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var payload struct {
+		NewPassword string `json:"new_password"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
+		_ = json.NewEncoder(rw).Encode(map[string]any{"error": "无效的请求格式"})
+		return
+	}
+
+	newPwd := strings.TrimSpace(payload.NewPassword)
+	if len(newPwd) < 4 {
+		rw.WriteHeader(http.StatusBadRequest)
+		_ = json.NewEncoder(rw).Encode(map[string]any{"error": "新密码长度不能少于 4 位"})
+		return
+	}
+
+	cfg := w.cfgMgr.Get()
+	cfg.WebUI.AdminPassword = newPwd
+
+	if err := w.cfgMgr.Update(&cfg); err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		_ = json.NewEncoder(rw).Encode(map[string]any{"error": "保存密码失败: " + err.Error()})
+		return
+	}
+
+	rw.Header().Set("Content-Type", "application/json; charset=utf-8")
+	_ = json.NewEncoder(rw).Encode(map[string]any{
+		"message": "管理员密码已成功修改",
+	})
 }
 
 func (w *WebUI) handleSync(rw http.ResponseWriter, r *http.Request) {

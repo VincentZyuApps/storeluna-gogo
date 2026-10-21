@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/images/logo.png" width="160" alt="storeluna-gogo Logo" style="border-radius: 50%; box-shadow: 0 4px 24px rgba(0,0,0,0.4);">
+</p>
+
 # storeluna-gogo
 
 > 纯 Go 实现的超轻量、高性能、高可用 Koishi 插件市场索引镜像服务与管理面板。

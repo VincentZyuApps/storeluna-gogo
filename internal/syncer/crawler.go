@@ -11,8 +11,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/VincentZyu233/storeluna-gogo/internal/config"
-	"github.com/VincentZyu233/storeluna-gogo/internal/storage"
+	"github.com/VincentZyuApps/storeluna-gogo/internal/config"
+	"github.com/VincentZyuApps/storeluna-gogo/internal/storage"
 )
 
 type CrawlerSyncer struct {
@@ -78,6 +78,11 @@ type MarketRegistry struct {
 
 func (c *CrawlerSyncer) Sync(ctx context.Context, cfg config.SyncConfig, store *storage.Storage) error {
 	start := time.Now()
+	timeout := time.Duration(cfg.TimeoutSeconds) * time.Second
+	if timeout <= 0 {
+		timeout = 30 * time.Second
+	}
+	c.client = BuildHTTPClient(timeout, cfg.Proxy)
 	registryURL := strings.TrimRight(cfg.RegistryURL, "/")
 	if registryURL == "" {
 		registryURL = "https://registry.npmmirror.com"

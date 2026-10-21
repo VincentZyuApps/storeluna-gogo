@@ -8,8 +8,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/VincentZyu233/storeluna-gogo/internal/config"
-	"github.com/VincentZyu233/storeluna-gogo/internal/storage"
+	"github.com/VincentZyuApps/storeluna-gogo/internal/config"
+	"github.com/VincentZyuApps/storeluna-gogo/internal/storage"
 )
 
 type MirrorSyncer struct {
@@ -31,15 +31,21 @@ func (m *MirrorSyncer) Sync(ctx context.Context, cfg config.SyncConfig, store *s
 		upstreamURL = "https://raw.githubusercontent.com/koishijs/registry/master/index.json"
 	}
 
+	timeout := time.Duration(cfg.TimeoutSeconds) * time.Second
+	if timeout <= 0 {
+		timeout = 30 * time.Second
+	}
+	client := BuildHTTPClient(timeout, cfg.Proxy)
+
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, upstreamURL, nil)
 	if err != nil {
 		store.SetError(err, "mirror", time.Since(start))
 		return err
 	}
-	req.Header.Set("User-Agent", "storeluna-gogo/1.0 (+https://github.com/VincentZyu233/storeluna-gogo)")
+	req.Header.Set("User-Agent", "storeluna-gogo/1.0 (+https://github.com/VincentZyuApps/storeluna-gogo)")
 	req.Header.Set("Accept", "application/json")
 
-	resp, err := m.client.Do(req)
+	resp, err := client.Do(req)
 	if err != nil {
 		store.SetError(err, "mirror", time.Since(start))
 		return fmt.Errorf("请求上游 registry 失败: %w", err)

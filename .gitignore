@@ -11,6 +11,7 @@ dist/
 config.yaml
 config.yaml.tmp
 data/
+temp/
 *.tmp
 
 # IDE & OS

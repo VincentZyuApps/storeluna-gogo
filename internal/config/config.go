@@ -11,30 +11,36 @@ import (
 )
 
 type Config struct {
-	Server ServerConfig `yaml:"server"`
-	WebUI  WebUIConfig  `yaml:"webui"`
-	Sync   SyncConfig   `yaml:"sync"`
+	Server ServerConfig `yaml:"server" json:"server"`
+	WebUI  WebUIConfig  `yaml:"webui" json:"webui"`
+	Sync   SyncConfig   `yaml:"sync" json:"sync"`
 }
 
 type ServerConfig struct {
-	Port     int      `yaml:"port"`
-	AllowIPs []string `yaml:"allow_ips"` // 允许访问的网段，留空或包含 0.0.0.0/0 表示全网开放
+	Port     int      `yaml:"port" json:"port"`
+	AllowIPs []string `yaml:"allow_ips" json:"allow_ips"` // 允许访问的网段，留空或包含 0.0.0.0/0 表示全网开放
 }
 
 type WebUIConfig struct {
-	Port          int      `yaml:"port"`
-	AllowIPs      []string `yaml:"allow_ips"`      // 允许访问 WebUI 的 CIDR 列表
-	AdminPassword string   `yaml:"admin_password"` // 管理员密码，默认 storeluna-gogo
+	Port          int      `yaml:"port" json:"port"`
+	AllowIPs      []string `yaml:"allow_ips" json:"allow_ips"`           // 允许访问 WebUI 的 CIDR 列表
+	AdminPassword string   `yaml:"admin_password" json:"admin_password"` // 管理员密码，默认 storeluna-gogo
+}
+
+type ProxyConfig struct {
+	Enabled bool   `yaml:"enabled" json:"enabled"` // 是否启用网络代理
+	URL     string `yaml:"url" json:"url"`         // 支持 http://, https://, socks5://, socks5h://
 }
 
 type SyncConfig struct {
-	Mode            string `yaml:"mode"`             // "mirror" (推荐) 或 "crawler"
-	IntervalMinutes int    `yaml:"interval_minutes"` // 定时更新周期 (分钟)
-	UpstreamURL     string `yaml:"upstream_url"`     // mirror 模式源
-	RegistryURL     string `yaml:"registry_url"`     // crawler 模式 NPM 镜像源
-	Concurrency     int    `yaml:"concurrency"`      // crawler 并发数
-	TimeoutSeconds  int    `yaml:"timeout_seconds"`  // 网络请求超时 (秒)
-	DataPath        string `yaml:"data_path"`        // 索引持久化路径，如 "data/index.json"
+	Mode            string      `yaml:"mode" json:"mode"`                         // "mirror" (推荐) 或 "crawler"
+	IntervalMinutes int         `yaml:"interval_minutes" json:"interval_minutes"` // 定时更新周期 (分钟)
+	UpstreamURL     string      `yaml:"upstream_url" json:"upstream_url"`         // mirror 模式源
+	RegistryURL     string      `yaml:"registry_url" json:"registry_url"`         // crawler 模式 NPM 镜像源
+	Concurrency     int         `yaml:"concurrency" json:"concurrency"`           // crawler 并发数
+	TimeoutSeconds  int         `yaml:"timeout_seconds" json:"timeout_seconds"`   // 网络请求超时 (秒)
+	DataPath        string      `yaml:"data_path" json:"data_path"`               // 索引持久化路径，如 "data/index.json"
+	Proxy           ProxyConfig `yaml:"proxy" json:"proxy"`                       // 上游代理配置
 }
 
 type Manager struct {
@@ -74,6 +80,10 @@ func DefaultConfig() *Config {
 			Concurrency:     8,
 			TimeoutSeconds:  30,
 			DataPath:        "data/index.json",
+			Proxy: ProxyConfig{
+				Enabled: false,
+				URL:     "http://127.0.0.1:7890",
+			},
 		},
 	}
 }

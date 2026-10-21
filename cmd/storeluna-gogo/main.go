@@ -9,15 +9,15 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/VincentZyu233/storeluna-gogo/internal/config"
-	"github.com/VincentZyu233/storeluna-gogo/internal/server"
-	"github.com/VincentZyu233/storeluna-gogo/internal/storage"
-	"github.com/VincentZyu233/storeluna-gogo/internal/syncer"
-	"github.com/VincentZyu233/storeluna-gogo/internal/webui"
+	"github.com/VincentZyuApps/storeluna-gogo/internal/config"
+	"github.com/VincentZyuApps/storeluna-gogo/internal/server"
+	"github.com/VincentZyuApps/storeluna-gogo/internal/storage"
+	"github.com/VincentZyuApps/storeluna-gogo/internal/syncer"
+	"github.com/VincentZyuApps/storeluna-gogo/internal/webui"
 )
 
 var (
-	Version   = "1.0.0"
+	Version   = "0.1.0"
 	BuildTime = "2026-10-22"
 )
 

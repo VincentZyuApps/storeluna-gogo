@@ -15,7 +15,7 @@ COPY . .
 
 ARG TARGETOS TARGETARCH
 RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build \
-    -ldflags="-s -w -X main.Version=1.0.0 -X main.BuildTime=$(date +%Y-%m-%d)" \
+    -ldflags="-s -w -X main.Version=0.1.0 -X main.BuildTime=$(date +%Y-%m-%d)" \
     -o /bin/storeluna-gogo ./cmd/storeluna-gogo
 
 # Final Stage

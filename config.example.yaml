@@ -46,3 +46,10 @@ sync:
 
   # 索引文件持久化落盘路径
   data_path: "data/index.json"
+
+  # 网络代理配置 (支持 http://, https://, socks5://, socks5h://)
+  proxy:
+    # 是否启用网络代理 (访问 GitHub 等上游数据时生效)
+    enabled: false
+    # 代理地址
+    url: "http://127.0.0.1:7890"
