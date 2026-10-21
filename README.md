@@ -86,7 +86,7 @@ docker run -d \
    server_port = 7000
    token = your_secure_token
 
-   [storeluna-market]
+   [storeluna-gogo-server]
    type = tcp
    local_ip = 127.0.0.1
    local_port = 55150
