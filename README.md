@@ -125,4 +125,4 @@ sync:
 
 - **原版插件仓库**：[koishi-shangxue-apps/plugins/storeluna](https://github.com/koishi-shangxue-plugins/koishi-shangxue-apps/tree/main/plugins/storeluna)
 - **基准版本文档**：[koishi-plugin-storeluna v1.1.9 README (commit 6421111)](https://github.com/koishi-shangxue-plugins/koishi-shangxue-apps/blob/642111102ce22227185cff4af737ce3e436b0200/plugins/storeluna/readme.md)
-- **开源贡献致敬**：衷心感谢 [@shangxueink](https://github.com/shangxueink) 以及 Koishi 上学社区为插件市场镜像生态所做的开创性探索！`storeluna-gogo` 作为使用纯 Go 独立重构的原生服务，在完全兼容原插件协议与缓存结构的同时，实现了微秒级响应与超低资源占用。
+- **开源贡献致敬**：衷心感谢 [@shangxueink](https://github.com/shangxueink) 与 Koishi 社区众多开发者的付出与探索！`storeluna-gogo` 作为使用纯 Go 独立重构的原生服务，在完全兼容原插件协议与缓存结构的同时，实现了微秒级响应与超低资源占用。
