@@ -22,6 +22,34 @@
    - 自动标记为 `latest` 以及对应的版本 Tag。
    - **自适应防报错机制**：如果仓库未配置 DockerHub 密钥，将安全跳过推送步骤，不影响二进制的 Release 发布。
 
+### CI/CD 执行架构流程图
+
+```mermaid
+flowchart TD
+    Start["触发事件: 推送 Tag (v*) 或 手动工作流触发"] --> TriggerCheck["启动 GitHub Actions CI"]
+
+    subgraph BinaryPipeline ["1. 跨平台二进制发布流水线"]
+        TriggerCheck --> MatrixBuild["多平台矩阵并行编译 (Go 1.24)"]
+        MatrixBuild --> LinuxAmd64["Linux amd64 静态编译 (.tar.gz)"]
+        MatrixBuild --> LinuxArm64["Linux arm64 静态编译 (.tar.gz)"]
+        MatrixBuild --> WinAmd64["Windows amd64 静态编译 (.zip)"]
+        MatrixBuild --> WinArm64["Windows arm64 静态编译 (.zip)"]
+        LinuxAmd64 --> GenSha["计算各包 SHA256 校验和"]
+        LinuxArm64 --> GenSha
+        WinAmd64 --> GenSha
+        WinArm64 --> GenSha
+        GenSha --> GHRelease["自动发布至 GitHub Releases 页面"]
+    end
+
+    subgraph DockerPipeline ["2. Docker 多架构镜像流水线"]
+        TriggerCheck --> CheckCreds{"检查 DockerHub 凭据 Secrets"}
+        CheckCreds -- "未配置 (留空)" --> SkipDocker["安全跳过 Docker 构建 (避免 CI 挂红)"]
+        CheckCreds -- "已配置 (存在)" --> SetupBuildx["配置 QEMU 模拟器与 Docker Buildx"]
+        SetupBuildx --> MultiArch["并行构建 linux/amd64 与 linux/arm64 镜像"]
+        MultiArch --> PushHub["推送到 Docker Hub (latest + tag)"]
+    end
+```
+
 ---
 
 ## 2. 如何获取 Docker Hub Token
