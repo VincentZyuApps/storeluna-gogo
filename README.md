@@ -1,3 +1,5 @@
+![storeluna-gogo](https://socialify.git.ci/VincentZyuApps/storeluna-gogo/image?description=1&font=Inter&forks=1&issues=1&language=1&logo=https%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2Ff%2Ff3%2FKoishi.js_Logo.png&name=1&owner=1&pattern=Plus&pulls=1&stargazers=1&theme=Auto)
+
 <p align="center">
   <img src="docs/images/logo.png" width="160" alt="storeluna-gogo Logo" style="border-radius: 50%; box-shadow: 0 4px 24px rgba(0,0,0,0.4);">
 </p>
