@@ -1,2 +1,3 @@
-# 让 GitHub Linguist 将 Markdown 计入仓库语言统计
-*.md linguist-detectable=true
+# 将所有 Markdown 纳入 GitHub Linguist 语言统计
+*.md linguist-language=Markdown linguist-detectable=true linguist-documentation=false
+**/*.md linguist-language=Markdown linguist-detectable=true linguist-documentation=false
