@@ -70,6 +70,146 @@ docker run -d \
 
 ---
 
+### 3. 公网暴露、反向代理与 HTTPS / CDN 最佳实践
+
+<details>
+<summary>💡 <b>提示：如果你想自己部署并配置 HTTPS + Cloudflare CDN，可以这样参考（点击展开）</b></summary>
+
+无论你将 `storeluna-gogo` **直接运行在云服务器** 上，还是运行在 **家庭宽带内网并结合 FRP 穿透到云端**，都可以配合 Nginx、SSL 证书与 Cloudflare CDN 实现企业级加速与防刷：
+
+#### 方案 A：家庭内网 + FRP 穿透到云端
+
+1. **内网客户端 (`frpc.ini`)**：
+   ```ini
+   [common]
+   server_addr = your-vps-domain-or-ip
+   server_port = 7000
+   token = your_secure_token
+
+   [storeluna-market]
+   type = tcp
+   local_ip = 127.0.0.1
+   local_port = 55150
+   remote_port = 55150
+   ```
+2. **云端服务端 (`frps.ini`)**：
+   监听 `7000` 端口，并开放 `55150` 端口供 Nginx 本地反代。
+
+---
+
+#### 方案 B：直接在云服务器运行
+
+直接在云服务器上通过 Docker 或原生方式启动 `storeluna-gogo`，监听本地 `127.0.0.1:55150` 即可。
+
+---
+
+#### 云服 Nginx 反向代理配置
+
+在云服务器 `/etc/nginx/sites-available/storeluna` 中配置（**注**：`storeluna-gogo` 后端已原生支持并处理 CORS 跨域请求，Nginx 无需重复配置 `add_header Access-Control-Allow-*` 避免产生冲突）：
+
+```nginx
+server {
+    listen 80;
+    listen [::]:80;
+    server_name market.example.com;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name market.example.com;
+
+    # 证书路径配置（参见下方证书方案）
+    ssl_certificate /etc/nginx/ssl/market.example.com.pem;
+    ssl_certificate_key /etc/nginx/ssl/market.example.com.key;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+
+    # 针对大型 index.json 启用实时 Gzip 压缩
+    gzip on;
+    gzip_types application/json text/plain;
+    gzip_min_length 1k;
+    gzip_comp_level 6;
+
+    location / {
+        proxy_pass http://127.0.0.1:55150;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header CF-Connecting-IP $http_cf_connecting_ip;
+
+        # 大文件索引传输缓冲优化
+        proxy_buffering on;
+        proxy_buffer_size 128k;
+        proxy_buffers 4 256k;
+        proxy_busy_buffers_size 256k;
+
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+    }
+}
+```
+
+---
+
+#### SSL 证书方案选择（二选一）
+
+##### ① Cloudflare 15 年免费 Origin CA 证书（推荐配合 Cloudflare 小黄云 CDN）
+如果你启用了 Cloudflare CDN（点亮小黄云），推荐在 Cloudflare 控制台或通过 API 签发最长 **15 年有效期** 的 Origin 证书：
+- **Web 控制台签发**：进入 Cloudflare 域名控制台 -> **SSL/TLS** -> **Origin Server (源服务器)** -> **Create Certificate (创建证书)**，主机名填写 `*.example.com` 与 `example.com`，有效期选择 15 年。
+- **通过 Cloudflare API 签发**：
+  ```bash
+  curl -X POST "https://api.cloudflare.com/client/v4/certificates" \
+       -H "X-Auth-Email: your_cf_email@example.com" \
+       -H "X-Auth-Key: your_cf_global_api_key" \
+       -H "Content-Type: application/json" \
+       --data '{
+         "hostnames": ["market.example.com", "*.example.com"],
+         "requested_validity": 5475,
+         "request_type": "origin-rsa"
+       }'
+  ```
+  将返回的证书保存到云服 `/etc/nginx/ssl/`，并在 Cloudflare **SSL/TLS 模式** 中切换为 **Full (Strict)**。
+
+##### ② Certbot 免费 Let's Encrypt 证书（直连或无需小黄云场景）
+如果你的域名直接解析到 VPS 且不走 Cloudflare CDN：
+```bash
+# 安装 certbot
+sudo apt-get install -y certbot python3-certbot-nginx
+
+# 自动申请证书并配置 Nginx
+sudo certbot --nginx -d market.example.com
+```
+
+---
+
+#### 借助 Cloudflare API 自动配置 DNS 解析示范
+
+```bash
+# 1. 查询 Zone ID
+ZONE_ID=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=example.com" \
+  -H "Authorization: Bearer YOUR_CF_API_TOKEN" \
+  -H "Content-Type: application/json" | jq -r '.result[0].id')
+
+# 2. 自动添加 A 记录并开启小黄云 CDN (proxied: true)
+curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records" \
+  -H "Authorization: Bearer YOUR_CF_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  --data '{
+    "type": "A",
+    "name": "market",
+    "content": "YOUR_VPS_PUBLIC_IP",
+    "ttl": 1,
+    "proxied": true
+  }'
+```
+
+</details>
+
+---
+
 ## ⚙️ 配置文件说明 (`config.yaml`)
 
 ```yaml
