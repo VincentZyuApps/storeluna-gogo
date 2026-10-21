@@ -106,7 +106,10 @@ func (s *Storage) Update(data []byte, mode string, duration time.Duration, upstr
 		}
 		tmpFile := filePath + ".tmp"
 		if err := os.WriteFile(tmpFile, data, 0644); err == nil {
-			_ = os.Rename(tmpFile, filePath)
+			if renameErr := os.Rename(tmpFile, filePath); renameErr != nil {
+				_ = os.Remove(tmpFile)
+				_ = os.WriteFile(filePath, data, 0644)
+			}
 		}
 	}
 	return nil

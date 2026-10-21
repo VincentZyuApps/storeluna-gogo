@@ -200,7 +200,13 @@ func saveToFile(path string, cfg *Config) error {
 	if err := os.WriteFile(tmpFile, bytes, 0644); err != nil {
 		return err
 	}
-	return os.Rename(tmpFile, path)
+	if err := os.Rename(tmpFile, path); err != nil {
+		// 在 Docker 单文件 bind-mount (-v /host/config.yaml:/app/config.yaml) 下，
+		// 目标路径作为挂载点无法被 rename 覆盖（返回 device or resource busy），自动降级为直接覆盖写入
+		_ = os.Remove(tmpFile)
+		return os.WriteFile(path, bytes, 0644)
+	}
+	return nil
 }
 
 // CheckIPAllowed 校验 IP 是否落在白名单列表中
