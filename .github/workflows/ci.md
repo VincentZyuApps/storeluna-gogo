@@ -34,6 +34,8 @@
 4. 填写说明（如 `github-actions-storeluna`），权限选择 **Read & Write**。
 5. 点击 **Generate**，**立即复制生成的 Token 字符串**（仅显示一次）。
 
+![Docker Hub 创建 Access Token 界面示意图](../../docs/images/dockerhub-create-access-token-guide.png)
+
 ---
 
 ## 3. 使用 GitHub CLI (`gh`) 配置仓库 Secret
