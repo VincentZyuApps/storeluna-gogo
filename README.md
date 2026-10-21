@@ -79,7 +79,7 @@ docker run -d \
 
 #### 方案 A：家庭内网 + FRP 穿透到云端
 
-1. **内网客户端 (`frpc.ini`)**：
+1. **内网客户端 (`frpc.ini`)**（*提示：新版的 FRP 已经把配置文件改成 `.toml` 格式，不过配置项大同小异*）：
    ```ini
    [common]
    server_addr = your-vps-domain-or-ip
