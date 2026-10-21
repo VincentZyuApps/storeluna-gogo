@@ -75,7 +75,7 @@ flowchart TD
 
 ### 3.1 设置 Docker Hub 用户名
 ```bash
-gh secret set DOCKERHUB_USERNAME --body "vincentzyu"
+gh secret set DOCKERHUB_USERNAME --body "vincentzyu233"
 ```
 
 ### 3.2 设置 Docker Hub Token

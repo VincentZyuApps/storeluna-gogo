@@ -41,7 +41,7 @@ docker run -d \
   -p 192.168.31.100:65150:65150 \
   -v /path/to/config.yaml:/app/config.yaml \
   -v /path/to/data:/app/data \
-  vincentzyu/storeluna-gogo:latest
+  vincentzyu233/storeluna-gogo:latest
 ```
 
 > **📌 端口映射说明**：
