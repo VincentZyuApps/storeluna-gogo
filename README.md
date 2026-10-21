@@ -61,7 +61,7 @@ docker run -d \
 
 ---
 
-### 2. 原生二进制 / MCSManager 运行
+### 2. 原生二进制运行（screen / tmux / systemd 等进程守护）
 
 1. 从 [Releases](../../releases) 页面下载适合你系统的可执行二进制文件（Windows / Linux）。
 2. 解压并将 `storeluna-gogo` 放入目标目录（如 `/home/user/storeluna-gogo`）。
@@ -71,7 +71,7 @@ docker run -d \
    ./storeluna-gogo -config config.yaml
    ```
    *服务启动时若检测到缺少 `config.yaml`，将自动生成默认配置文件。*
-4. **MCSManager 配置**：在面板中创建通用进程实例，工作目录设置为程序所在文件夹，启动命令填入 `./storeluna-gogo` 即可享受自动拉起与实时控制台日志。
+4. **后台常驻守护**：可使用你自己喜欢的工具（如 MCSManager、systemd、screen、tmux 或 pm2 等）配置后台守护进程，即可享受自动故障拉起与实时日志查看。
 
 ---
 
