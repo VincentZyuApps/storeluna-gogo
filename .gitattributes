@@ -1,0 +1,2 @@
+# 让 GitHub Linguist 将 Markdown 计入仓库语言统计
+*.md linguist-detectable=true
