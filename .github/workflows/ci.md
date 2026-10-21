@@ -32,7 +32,10 @@
 2. 点击右上角个人头像 ➔ **Account Settings** ➔ 左侧菜单选择 **Security**。
 3. 在 **Personal access tokens** 区域点击 **New Access Token**。
 4. 填写说明（如 `github-actions-storeluna`），权限选择 **Read & Write**。
-5. 点击 **Generate**，**立即复制生成的 Token 字符串**（仅显示一次）。
+5. **关于 Allow Cloud Sandboxes access 勾选框**：
+   - **不需要勾选（保持默认留空）**。
+   - *说明*：该选项用于授权创建和使用 Docker 官方的云端沙盒环境（Cloud Sandboxes）；GitHub Actions 构建推送镜像仅需标准的仓库读写权限，保持不勾选遵循最小权限原则，更安全。
+6. 点击 **Generate**，**立即复制生成的 Token 字符串**（仅显示一次）。
 
 ![Docker Hub 创建 Access Token 界面示意图](../../docs/images/dockerhub-create-access-token-guide.png)
 
