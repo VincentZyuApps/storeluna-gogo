@@ -39,6 +39,14 @@
 
 ---
 
+## 📸 控制台界面预览
+
+<div align="center">
+  <img src="docs/images/preview/preview.png" alt="storeluna-gogo WebUI Preview" style="border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); max-width: 95%;">
+</div>
+
+---
+
 ## 🚀 部署指南
 
 ### 1. Docker 容器化运行 (推荐)
