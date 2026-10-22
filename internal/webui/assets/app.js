@@ -36,6 +36,70 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () 
 
 applyTheme(currentTheme);
 
+// 全局 Toast 悬浮通知系统
+function showToast(message, type = 'info', duration = 3500) {
+  const container = document.getElementById('toast-container');
+  if (!container) return;
+
+  const icons = {
+    success: '✅',
+    error: '❌',
+    warning: '⚠️',
+    info: 'ℹ️'
+  };
+
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+
+  const iconEl = document.createElement('span');
+  iconEl.className = 'toast-icon';
+  iconEl.textContent = icons[type] || 'ℹ️';
+
+  const msgEl = document.createElement('div');
+  msgEl.className = 'toast-msg';
+  msgEl.textContent = message;
+
+  const closeBtn = document.createElement('button');
+  closeBtn.type = 'button';
+  closeBtn.className = 'toast-close';
+  closeBtn.innerHTML = '&times;';
+  closeBtn.title = '关闭';
+
+  toast.appendChild(iconEl);
+  toast.appendChild(msgEl);
+  toast.appendChild(closeBtn);
+  container.appendChild(toast);
+
+  // 触发滑入淡入动画
+  requestAnimationFrame(() => {
+    toast.classList.add('toast-show');
+  });
+
+  let dismissTimer = null;
+  const dismiss = () => {
+    if (dismissTimer) clearTimeout(dismissTimer);
+    toast.classList.remove('toast-show');
+    toast.classList.add('toast-hide');
+    setTimeout(() => {
+      if (toast.parentNode) {
+        toast.parentNode.removeChild(toast);
+      }
+    }, 350);
+  };
+
+  closeBtn.addEventListener('click', dismiss);
+
+  if (duration > 0) {
+    dismissTimer = setTimeout(dismiss, duration);
+    toast.addEventListener('mouseenter', () => {
+      if (dismissTimer) clearTimeout(dismissTimer);
+    });
+    toast.addEventListener('mouseleave', () => {
+      dismissTimer = setTimeout(dismiss, 1500);
+    });
+  }
+}
+
 // 认证与网络请求
 let authToken = localStorage.getItem('storeluna_token') || '';
 
@@ -234,14 +298,14 @@ async function saveConfig(e) {
     });
     const result = await res.json();
     if (res.ok) {
-      alert('配置已成功保存并完成实时热重载！');
+      showToast('配置已成功保存并完成实时热重载！', 'success');
       loadConfig();
       refreshStatus();
     } else {
-      alert('保存失败: ' + (result.error || '未知错误'));
+      showToast('保存失败: ' + (result.error || '未知错误'), 'error');
     }
   } catch (err) {
-    alert('请求失败: ' + err.message);
+    showToast('请求失败: ' + err.message, 'error');
   } finally {
     saveBtn.disabled = false;
     saveBtn.textContent = '保存并热重载配置';
@@ -256,11 +320,11 @@ async function handlePasswordUpdate(e) {
   const btn = document.getElementById('update-pwd-btn');
 
   if (newPwd !== confirmPwd) {
-    alert('两次输入的密码不一致，请检查！');
+    showToast('两次输入的密码不一致，请检查！', 'warning');
     return;
   }
   if (newPwd.length < 4) {
-    alert('密码长度不能少于 4 位字符！');
+    showToast('密码长度不能少于 4 位字符！', 'warning');
     return;
   }
 
@@ -275,15 +339,15 @@ async function handlePasswordUpdate(e) {
     });
     const data = await res.json();
     if (res.ok) {
-      alert('管理员密码修改成功！');
+      showToast('管理员密码修改成功！', 'success');
       document.getElementById('new-password').value = '';
       document.getElementById('confirm-password').value = '';
       refreshStatus();
     } else {
-      alert('修改失败: ' + (data.error || '未知错误'));
+      showToast('修改失败: ' + (data.error || '未知错误'), 'error');
     }
   } catch (err) {
-    alert('请求异常: ' + err.message);
+    showToast('请求异常: ' + err.message, 'error');
   } finally {
     btn.disabled = false;
     btn.textContent = '更新管理员密码';
@@ -349,12 +413,15 @@ async function triggerSync() {
     const data = await res.json();
     if (res.ok) {
       syncDesc.textContent = '✅ 已成功发送同步指令！';
+      showToast('已成功下发全量同步指令！', 'success');
       setTimeout(refreshStatus, 1000);
     } else {
       syncDesc.textContent = '❌ 同步失败: ' + (data.error || '未知错误');
+      showToast('同步请求失败: ' + (data.error || '未知错误'), 'error');
     }
   } catch (err) {
     syncDesc.textContent = '❌ 网络异常: ' + err.message;
+    showToast('网络请求异常: ' + err.message, 'error');
   } finally {
     syncBtn.disabled = false;
     syncBtn.textContent = '立即全量同步';

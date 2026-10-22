@@ -60,7 +60,7 @@ jobs:
           elif [ -n "${{ github.ref_name }}" ]; then
             VERSION="${{ github.ref_name }}"
           else
-            VERSION="v0.1.1"
+            VERSION="v0.1.2"
           fi
           echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
           echo "BUILD_TIME=$(date -u +%Y-%m-%d)" >> $GITHUB_OUTPUT
@@ -109,7 +109,7 @@ jobs:
           elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
             TAG="${GITHUB_REF#refs/tags/}"
           else
-            TAG="v0.1.1"
+            TAG="v0.1.2"
           fi
           echo "tag=${TAG}" >> $GITHUB_OUTPUT
 
@@ -188,6 +188,7 @@ jobs:
       - name: Update Docker Hub README
         if: steps.check_docker.outputs.has_creds == 'true'
         uses: peter-evans/dockerhub-description@v4
+        continue-on-error: true
         with:
           repository: ${{ secrets.DOCKERHUB_USERNAME }}/storeluna-gogo
           username: ${{ secrets.DOCKERHUB_USERNAME }}

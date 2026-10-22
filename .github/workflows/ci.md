@@ -59,7 +59,9 @@ flowchart TD
 1. 登录 [Docker Hub 控制台](https://hub.docker.com/)。
 2. 点击右上角个人头像 ➔ **Account Settings** ➔ 左侧菜单选择 **Security**。
 3. 在 **Personal access tokens** 区域点击 **New Access Token**。
-4. 填写说明（如 `github-actions-storeluna`），权限选择 **Read & Write**。
+4. 填写说明（如 `github-actions-storeluna`），权限选择 **Repo Read, Write, Delete**。
+   > 💡 **为什么必须选择 Repo Read, Write, Delete？**
+   > CI 流水线不仅负责构建并推送镜像层，还会在构建完成后自动调用 Docker Hub OpenAPI 将最新的 `README.md` 与项目介绍同步到 Docker Hub 仓库主页。Docker Hub 严格限制只有具备 `Delete` 级别（即完整仓库管理权限）的 Token 才能调用该修改接口，否则会返回 `403 Forbidden`。
 5. **关于 Allow Cloud Sandboxes access 勾选框**：
    - **不需要勾选（保持默认留空）**。
    - *说明*：该选项用于授权创建和使用 Docker 官方的云端沙盒环境（Cloud Sandboxes）；GitHub Actions 构建推送镜像仅需标准的仓库读写权限，保持不勾选遵循最小权限原则，更安全。
